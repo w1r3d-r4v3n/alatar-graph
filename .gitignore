@@ -1,0 +1,15 @@
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+work/
+data/
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.duckdb
