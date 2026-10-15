@@ -14,6 +14,26 @@ node server.js
 
 Open <http://127.0.0.1:4173/>.
 
+## Windows desktop prototype
+
+The desktop build keeps the graph editor and local project storage in one app. It uses a free local port and saves projects in a `graphs` folder under Electron's per-user app-data directory. Use **Local graphs → Save current graph** for durable storage, and **Open saved graph** to reopen one. Project JSON export remains available for backups. The desktop prototype shows local storage only; the browser version below retains the other connection options.
+
+To run or build it on Windows x64 with Node.js 22+ and pnpm:
+
+```sh
+pnpm install
+pnpm desktop:setup
+pnpm desktop
+```
+
+In a separate terminal, build the portable ZIP:
+
+```sh
+pnpm pack:win
+```
+
+`pnpm pack:win` creates `dist/AlatarsGraph-Windows-x64.zip`. Extract the complete ZIP and run `AlatarsGraph.exe` inside its folder. The prototype is portable and unsigned; it has no installer or automatic updater. End users of the ZIP do not need Node.js or pnpm.
+
 ## Investigate
 
 - Start a blank graph, add entities and directed connections, or open a project JSON file.

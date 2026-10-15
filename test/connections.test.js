@@ -14,6 +14,21 @@ function mcpClient(child) {
   readline.createInterface({input:child.stdout}).on('line',line => { const result=JSON.parse(line);const entry=pending.get(result.id);if(entry){pending.delete(result.id);entry(result);} });
   return (method,params) => new Promise(resolve => { const id=++nextId;pending.set(id,resolve);child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n'); });
 }
+test('desktop mode uses a free local port and exposes local storage only',async t => {
+  const env={...process.env,PORT:'0',ALATARS_GRAPH_DESKTOP_LOCAL_ONLY:'1',ALATARS_GRAPH_DATABASE_URL:''};
+  const child=spawn(process.execPath,['server.js'],{cwd:path.join(__dirname,'..'),env,stdio:['ignore','pipe','pipe']});
+  t.after(()=>child.kill());
+  const output=String(await untilReady(child));
+  const match=output.match(/http:\/\/127\.0\.0\.1:(\d+)\//);
+  assert.ok(match,'server should report its chosen port');
+  assert.ok(Number(match[1])>0);
+  const response=await fetch(`http://127.0.0.1:${match[1]}/api/connections`);
+  const settings=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(settings.storage,'local');
+  assert.equal(settings.desktopLocalOnly,true);
+  assert.equal(settings.mcp,null);
+});
 test('local API and MCP share graph data and reject stale writes',async t => {
   const dataDir=await fs.mkdtemp(path.join(os.tmpdir(),'alatar-test-'));
   const port=await freePort(),base=`http://127.0.0.1:${port}`;

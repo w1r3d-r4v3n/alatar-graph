@@ -3,9 +3,23 @@
   const $ = id => document.getElementById(id);
   const dialog = $('connections-dialog');
   const api = window.ALATARS_GRAPH_API;
+  const desktopLocalOnly = new URLSearchParams(location.search).get('desktop') === '1';
   let serverInfo = null, driveToken = null, driveExpires = 0, driveClient = null, driveFileId = null, driveGraphId = null, gisPromise = null;
   let revisions = new Map();
   const message = text => { $('connection-message').textContent = text; };
+  if (desktopLocalOnly) {
+    $('connections-button').textContent = 'Local graphs';
+    $('connections-title').textContent = 'Local graphs';
+    $('storage-hint').textContent = 'SAVE GRAPHS ON THIS COMPUTER';
+    dialog.querySelector('.eyebrow').textContent = 'ON THIS COMPUTER';
+    dialog.querySelector('.connections-head p').textContent = 'Save and reopen graph projects in your Windows profile.';
+    $('connection-local').querySelector('p').textContent = 'Save graph projects on this computer. A separate draft is kept for recovery.';
+    dialog.querySelector('.connection-tabs').hidden = true;
+    for (const name of ['postgres','drive','mcp']) {
+      dialog.querySelector(`[data-connection-tab="${name}"]`).hidden = true;
+      $('connection-' + name).hidden = true;
+    }
+  }
   function errorText(error) { return error?.message || 'Connection failed.'; }
   async function request(url, options) {
     const response = await fetch(url,options);
@@ -23,6 +37,7 @@
     } catch (error) { message(errorText(error)); }
   }
   function tab(name) {
+    if (desktopLocalOnly && name !== 'local') return;
     document.querySelectorAll('[data-connection-tab]').forEach(button => button.classList.toggle('active',button.dataset.connectionTab === name));
     for (const item of ['local','postgres','drive','mcp']) $('connection-' + item).hidden = item !== name;
     $('connection-list').hidden = true;message('');
@@ -46,7 +61,7 @@
     revisions.set(project.id,result.revision);
     $('connection-list').hidden = true;
     message(`Saved “${project.title}” to ${serverInfo.storage === 'postgres' ? 'PostgreSQL' : 'this computer'} at ${new Date(result.updatedAt).toLocaleString()}.`);
-    api.toast('Graph saved to ' + (serverInfo.storage === 'postgres' ? 'PostgreSQL' : 'local server'));
+    api.toast('Graph saved to ' + (serverInfo.storage === 'postgres' ? 'PostgreSQL' : 'this computer'));
   }
   async function listServer() {
     const data = await request('/api/graphs');
@@ -118,6 +133,7 @@
   dialog.addEventListener('click',async event => {
     const action = event.target.closest('[data-action]')?.dataset.action;
     if (!action) return;
+    if (desktopLocalOnly && action !== 'save-local' && action !== 'list-local') return;
     try {
       if (action === 'connect-drive') { connectDrive();return; }
       message('Working…');

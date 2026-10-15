@@ -4,11 +4,15 @@ const path = require('node:path');
 const storage = require('./storage');
 
 const root = __dirname;
-const port = Number(process.env.PORT || 4173);
+let port = Number(process.env.PORT || 4173);
 const host = '127.0.0.1';
-const origin = `http://${host}:${port}`;
+let origin = `http://${host}:${port}`;
+const desktopLocalOnly = process.env.ALATARS_GRAPH_DESKTOP_LOCAL_ONLY === '1';
 const publicFiles = new Set(['/index.html','/styles.css','/app.js','/demo-data.js','/connections.js','/vendor/cytoscape.min.js']);
 const mime = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'};
+const contentSecurityPolicy = desktopLocalOnly
+  ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'"
+  : "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://www.googleapis.com https://accounts.google.com https://oauth2.googleapis.com; frame-src https://accounts.google.com; object-src 'none'; base-uri 'none'";
 function json(res, status, body) { res.writeHead(status, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}).end(JSON.stringify(body)); }
 function readBody(req) {
   return new Promise((resolve,reject) => {
@@ -25,7 +29,7 @@ const server = http.createServer(async (req,res) => {
   if (pathname.startsWith('/api/')) {
     try {
       if (req.method !== 'GET' && req.headers.origin !== origin && req.headers.origin !== `http://localhost:${port}`) return json(res,403,{error:'Requests must originate from this local app.'});
-      if (pathname === '/api/connections' && req.method === 'GET') return json(res,200,{storage:storage.mode,postgresConfigured:storage.mode==='postgres',mcp:{command:process.execPath,args:[path.join(root,'mcp-server.js')]}});
+      if (pathname === '/api/connections' && req.method === 'GET') return json(res,200,{storage:storage.mode,postgresConfigured:storage.mode==='postgres',desktopLocalOnly,mcp:desktopLocalOnly?null:{command:process.execPath,args:[path.join(root,'mcp-server.js')]}});
       if (pathname === '/api/graphs' && req.method === 'GET') return json(res,200,{graphs:await storage.list()});
       const match = /^\/api\/graphs\/([A-Za-z0-9_-]{1,100})$/.exec(pathname);
       if (match && req.method === 'GET') {
@@ -47,8 +51,24 @@ const server = http.createServer(async (req,res) => {
   const file = path.join(root, requested);
   fs.stat(file,(error,stat) => {
     if (error || !stat.isFile()) { res.writeHead(404).end(); return; }
-    res.writeHead(200,{'Content-Type':mime[path.extname(file)] || 'application/octet-stream','X-Content-Type-Options':'nosniff','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://www.googleapis.com https://accounts.google.com https://oauth2.googleapis.com; frame-src https://accounts.google.com; object-src 'none'; base-uri 'none'"});
+    res.writeHead(200,{'Content-Type':mime[path.extname(file)] || 'application/octet-stream','X-Content-Type-Options':'nosniff','Cache-Control':'no-store','Content-Security-Policy':contentSecurityPolicy});
     if (req.method === 'HEAD') res.end(); else fs.createReadStream(file).pipe(res);
   });
 });
-server.listen(port,host,() => console.log(`Alatar's Graph demo: ${origin}/`));
+function startServer(listenPort = port) {
+  if (server.listening) return Promise.resolve({server,port,origin});
+  return new Promise((resolve,reject) => {
+    const onError = error => reject(error);
+    server.once('error',onError);
+    server.listen(listenPort,host,() => {
+      server.off('error',onError);
+      port = server.address().port;
+      origin = `http://${host}:${port}`;
+      resolve({server,port,origin});
+    });
+  });
+}
+
+if (require.main === module) startServer().then(({origin}) => console.log(`Alatar's Graph demo: ${origin}/`)).catch(error => { console.error(error);process.exitCode = 1; });
+
+module.exports = {startServer};
