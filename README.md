@@ -40,7 +40,7 @@ pnpm pack:win
 
 - Start a blank graph, add entities and directed connections, or open a project JSON file.
 - Import paired entity and connection CSVs. The preview reports record counts, skipped rows, and unmatched endpoints. Endpoint IDs must match exactly; names alone do not merge entities. You may create explicitly marked placeholder entities for unresolved IDs.
-- Search by entity ID, name, notes, or attributes. The left panel holds filters, layout, fit, and zoom controls. Filter by entity type, relationship, jurisdiction, evidence status, active date, selected entity's neighbors, or isolated entities. Filters only change the view.
+- Search by entity ID, name, notes, or attributes. The left panel holds filters; the slim bar above the graph holds layout, fit, and zoom controls. Filter by entity type, relationship, jurisdiction, evidence status, active date, selected entity's neighbors, or isolated entities. Filters only change the view.
 - Select a node or connection to open its attribute card on the right and edit notes, dates, evidence status, properties, source excerpts, and appearance. The right panel is resizable on desktop; narrow screens use left and right drawers. Icons include people, groups, buildings, government, locations, accounts, websites, phones, documents, financial entities, vehicles, vessels, aircraft, and devices.
 - Shift/Ctrl-click or Shift-drag to select several records; Ctrl/Cmd+A selects everything in view. Apply a color or node icon to a selection, or delete it with a confirmation that counts attached connections. Esc clears selection.
 - Drag a node label freely or slide a connection label along its edge. The attribute view also has label position controls.
