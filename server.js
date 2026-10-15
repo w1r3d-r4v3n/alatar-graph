@@ -8,8 +8,8 @@ let port = Number(process.env.PORT || 4173);
 const host = '127.0.0.1';
 let origin = `http://${host}:${port}`;
 const desktopLocalOnly = process.env.ALATARS_GRAPH_DESKTOP_LOCAL_ONLY === '1';
-const publicFiles = new Set(['/index.html','/styles.css','/app.js','/demo-data.js','/connections.js','/vendor/cytoscape.min.js']);
-const mime = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'};
+const publicFiles = new Set(['/index.html','/styles.css','/app.js','/demo-data.js','/connections.js','/vendor/cytoscape.min.js','/assets/alatar-mark.png']);
+const mime = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png'};
 const contentSecurityPolicy = desktopLocalOnly
   ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'"
   : "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://www.googleapis.com https://accounts.google.com https://oauth2.googleapis.com; frame-src https://accounts.google.com; object-src 'none'; base-uri 'none'";

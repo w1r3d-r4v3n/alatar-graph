@@ -144,3 +144,91 @@ textarea.attribute-input{resize:vertical;min-height:65px}
   .chart-toolbar .search-wrap{width:calc(100% - 110px)}
   .chart-toolbar{gap:8px}
 }
+
+/* Alatar's Graph: midnight blue and starlight. Shared by web and Windows. */
+:root{
+  --bg:#071225;--surface:#0d1d35;--surface-2:#142947;
+  --line:#29415f;--line-soft:#1d3451;--text:#ecf4ff;
+  --muted:#9bb2cf;--faint:#6f8bab;--teal:#6bbaff;
+  --blue:#9bd0ff;--amber:#e8ba72;--pink:#dfa5d8;
+  --violet:#aaaaff;--mint:#88b7fa
+}
+html,body{background:var(--bg)}
+.topbar{background:linear-gradient(105deg,#09172c 0%,#0c1d3a 60%,#111e3d 100%)}
+.brand-mark{border-color:#4e83bd;background:radial-gradient(circle at 50% 48%,#1e4d88 0%,#122d55 53%,#0a1a34 100%);color:#a7d8ff;box-shadow:0 0 0 1px #6bbaff22,inset 0 0 12px #75bbff33,0 0 17px #3987df29}
+.brand-sub{color:#a9c0de}
+.brand-divider{background:#365475}
+.status{color:#b5c9e3}
+.status-dot,.live-dot{background:#73c2ff;box-shadow:0 0 0 4px #3a81d13d,0 0 12px #67b8ff77}
+.button.subtle{background:#142746;color:#d2e3f7;border-color:#314b6c}
+.button.subtle:hover{background:#1c365e}
+.button.primary{background:#70bfff;border-color:#70bfff;color:#071a33;box-shadow:inset 0 1px #ffffff55}
+.button.primary:hover{background:#9bd4ff}
+.sidebar{background:#0a1931}
+.left-panel{border-color:var(--line)}
+.case-kicker span{color:#8fa8cb}
+.case-summary{color:#a8bad1}
+.demo-banner{border-color:#395988;background:#142d53;color:#a1d4ff}
+.demo-banner strong{color:#e7f3ff}
+.demo-banner small{color:#abc4e2}
+.section-head{color:#b2c4df}
+.filter{color:#c9d9ec}
+.filter:hover,.lead:hover{background:#152d50}
+.filter input{border-color:#5b779e;background:#122947}
+.filter input:checked:after{color:#08203b}
+.filter-count,.lead small{color:#8ea9c9}
+.lead{color:#e0ebfa}
+.lead:hover{border-color:#385a83}
+.lead-arrow{color:#87b8e7}
+.sidebar-bottom span{color:#82a3c8}
+.filter-fields label,.side-view-controls label{color:#b1c6e2}
+.filter-fields select,.filter-fields input[type=date],.side-view-controls select{background:#132846;border-color:#355477;color:#e3efff}
+.side-view-actions button{background:#162d4d;border-color:#355477;color:#deedff}
+.side-view-actions button:hover{background:#234571}
+.chart-panel{background:#08162b}
+.chart-toolbar{background:#0b1c36}
+.search-wrap{background:#142947;border-color:#355375;color:#9ab6d5}
+.search-wrap input::placeholder{color:#8ca9cb}
+.search-wrap kbd{border-color:#3c5a7d;color:#9bb8d8}
+.icon-button,.toolbar-right select{background:#142947;border-color:#355375;color:#d7e9ff}
+.icon-button:hover{background:#21406c}
+.graph-grid{background-image:linear-gradient(#25446d8c 1px,transparent 1px),linear-gradient(90deg,#25446d8c 1px,transparent 1px);opacity:.38}
+.graph-stage:before{background:radial-gradient(circle at 50% 42%,#21487866,transparent 67%)}
+.canvas-label,.chart-footer{color:#91a9c9}
+.canvas-separator{color:#5e83b3}
+.search-results{background:#132845;border-color:#3b5c82}
+.search-result:hover{background:#1e3a62}
+.inspector-shell{border-color:var(--line)}
+.inspector-heading,.detail-heading,.attribute-section-heading{color:#adc1dd}
+.inspector-heading .dot-menu{color:#94aed0}
+.empty-symbol{border-color:#426ea3;background:#16365d}
+.inspector-empty p,.entity-subtitle{color:#adc0d8}
+.inspector-empty .hint-card{background:#142b4a;border-color:#345678;color:#b9cde5}
+.hint-card strong{color:#eaf4ff}
+.detail-text,.source-item{color:#d2e1f0}
+.tag{background:#1a3558;border-color:#3c5b82;color:#bcd2ec}
+.confidence{background:#17365a;border-color:#3c6798;color:#abd3ff}
+.confidence.medium{background:#3b2d27;border-color:#715238;color:#f1c37b}
+.confidence.low{background:#3b2836;border-color:#6d4560;color:#efb2cf}
+.connection-row,.edge-flow{background:#152d4c;border-color:#38587e;color:#e1ecfa}
+.connection-row:hover{background:#21416b}
+.connection-row small{color:#96b2d3}
+dialog{background:#0e213d;border-color:#42648e;color:#edf5ff}
+dialog::backdrop{background:#030b1ddd}
+dialog label,.connection-label{color:#c3d4e9}
+dialog input,dialog select,dialog textarea,.attribute-input,.connection-label input{background:#162e50;border-color:#3d5e86;color:#edf5ff}
+.attribute-input:focus{border-color:#6bbaff}
+.attribute-control,.range-header{color:#b9cbe3}
+.attribute-hint,.field-hint{color:#9ab3d2}
+.reset-position{background:#173252;border-color:#3a5e85;color:#b5dbff}
+.reset-position:hover{background:#244773}
+.icon-preview img{background:#24456e;border-color:#4a6f99}
+.panel-resizer span{background:#58769e;box-shadow:0 0 0 3px #0a1931}
+.label-handle{border-color:#d8edff;background:#1c5084;color:#f5fbff;box-shadow:0 3px 12px #000a,0 0 0 4px #6bbaff44}
+.label-handle:hover,.label-handle:focus-visible{background:#2e79ba;box-shadow:0 3px 12px #000a,0 0 0 6px #6bbaff55}
+.toast{background:#17375a;border-color:#4b79ab;color:#edf7ff}
+.connection-code{background:#0b1c36;border-color:#3b5e88;color:#c4e1ff}
+.connection-list button{background:#152d4c;border-color:#355779;color:#e7f1ff}
+.connection-list button:hover{background:#204273}
+.connection-message,.connection-state{color:#a8d5ff}
+.panel-scrim{background:#020817b8}

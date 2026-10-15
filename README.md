@@ -4,6 +4,8 @@
 
 A standalone investigation graph workspace built with [Cytoscape.js](https://js.cytoscape.org/). Explore a fictional case in the browser, then build your own entity and relationship graphs. The opening graph and starter CSV files contain synthetic data.
 
+The shared web and Windows interface uses Alatar's Graph's midnight-blue theme. Saved graphs using the earlier default entity colors adopt the blue palette when opened; other custom colors stay as chosen.
+
 ## Run
 
 The offline local demo requires Node.js 18 or newer. It needs no package install, account, API key, or internet connection. PostgreSQL and Google Drive setup are described below.

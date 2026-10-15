@@ -13,7 +13,8 @@ const stage = fs.mkdtempSync(path.join(os.tmpdir(),'alatar-desktop-stage-'));
 const files = [
   'package.json','desktop-main.js','server.js','storage.js',
   'index.html','styles.css','app.js','connections.js','demo-data.js',
-  'LICENSE','vendor/CYTOSCAPE-LICENSE','vendor/cytoscape.min.js'
+  'LICENSE','vendor/CYTOSCAPE-LICENSE','vendor/cytoscape.min.js',
+  'assets/alatar-mark.png'
 ];
 
 async function main() {
@@ -31,6 +32,7 @@ async function main() {
       executableName: 'AlatarsGraph',
       platform: 'win32',
       arch: 'x64',
+      icon: path.join(root,'assets','alatar-mark.ico'),
       electronVersion: require('electron/package.json').version,
       asar: true,
       prune: false,

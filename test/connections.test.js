@@ -28,6 +28,9 @@ test('desktop mode uses a free local port and exposes local storage only',async 
   assert.equal(settings.storage,'local');
   assert.equal(settings.desktopLocalOnly,true);
   assert.equal(settings.mcp,null);
+  const icon=await fetch(`http://127.0.0.1:${match[1]}/assets/alatar-mark.png`);
+  assert.equal(icon.status,200);
+  assert.equal(icon.headers.get('content-type'),'image/png');
 });
 test('local API and MCP share graph data and reject stale writes',async t => {
   const dataDir=await fs.mkdtemp(path.join(os.tmpdir(),'alatar-test-'));

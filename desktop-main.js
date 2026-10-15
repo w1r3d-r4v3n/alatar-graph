@@ -34,7 +34,8 @@ if (!app.requestSingleInstanceLock()) {
       height: 900,
       minWidth: 900,
       minHeight: 650,
-      backgroundColor: '#09141c',
+      backgroundColor: '#071225',
+      icon: path.join(__dirname,'assets','alatar-mark.png'),
       autoHideMenuBar: true,
       show: false,
       webPreferences: {

@@ -2,13 +2,13 @@
 (() => {
   "use strict";
   const TYPES = {
-    organization:{label:"Organizations",singular:"Organization",color:"#59dec8"},
-    person:{label:"People",singular:"Person",color:"#77b7f7"},
-    domain:{label:"Domains",singular:"Domain",color:"#c2a4f7"},
-    location:{label:"Locations",singular:"Location",color:"#eeb665"},
-    document:{label:"Documents",singular:"Document",color:"#f394a9"},
-    account:{label:"Accounts",singular:"Account",color:"#9bdc9d"},
-    other:{label:"Other",singular:"Other",color:"#a9b3bf"}
+    organization:{label:"Organizations",singular:"Organization",color:"#6bbaff"},
+    person:{label:"People",singular:"Person",color:"#a5d7ff"},
+    domain:{label:"Domains",singular:"Domain",color:"#a9adff"},
+    location:{label:"Locations",singular:"Location",color:"#e8ba72"},
+    document:{label:"Documents",singular:"Document",color:"#d5aef2"},
+    account:{label:"Accounts",singular:"Account",color:"#88b7fa"},
+    other:{label:"Other",singular:"Other",color:"#aabdd7"}
   };
   const ICONS = {
     organization:{label:"Building",paths:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h2m4 0h2M8 11h2m4 0h2M8 15h2m4 0h2M10 21v-3h4v3"/>'},
@@ -32,6 +32,12 @@
   const LINE_STYLES = {solid:"Solid",dashed:"Dashed",dotted:"Dotted"};
   const ARROWS = {triangle:"Arrow",vee:"Open arrow",none:"None"};
   const STATUSES = {Documented:"Documented",Reported:"Reported",Uncertain:"Uncertain",Historical:"Historical"};
+  const DESKTOP_MODE = new URLSearchParams(location.search).get("desktop") === "1";
+  const LEGACY_DEFAULT_COLORS = {
+    "#59dec8":"#6bbaff","#77b7f7":"#a5d7ff","#c2a4f7":"#a9adff",
+    "#eeb665":"#e8ba72","#f394a9":"#d5aef2","#9bdc9d":"#88b7fa",
+    "#a9b3bf":"#aabdd7","#668998":"#7897ba"
+  };
   const DRAFT_KEY = "alatar-graph-draft-v1";
   const $ = id => document.getElementById(id);
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -41,22 +47,26 @@
   const safeText = (value,max=500) => typeof value==="string"?value.trim().slice(0,max):"";
   const numeric = (value,fallback,min,max) => Number.isFinite(Number(value))?clamp(Number(value),min,max):fallback;
   const color = (value,fallback) => typeof value==="string"&&/^#[0-9a-f]{6}$/i.test(value)?value:fallback;
+  const themeColor = (value,fallback) => {
+    const chosen=color(value,fallback);
+    return LEGACY_DEFAULT_COLORS[chosen.toLowerCase()] || chosen;
+  };
   const iconCache = {};
   function iconUri(name){
     if(!ICONS[name])name="organization";
     if(!iconCache[name]){
-      const svg='<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e9faf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ICONS[name].paths+"</svg>";
+      const svg='<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#edf6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ICONS[name].paths+"</svg>";
       iconCache[name]="data:image/svg+xml;utf8,"+encodeURIComponent(svg);
     }
     return iconCache[name];
   }
   function nodeAppearance(n,a){
     a=a||{};
-    return {color:color(a.color,TYPES[n.type].color),shape:SHAPES[a.shape]?a.shape:"ellipse",size:numeric(a.size,n.id==="harborlight"?58:n.type==="organization"?48:42,28,80),icon:ICONS[a.icon]?a.icon:n.type,labelDx:numeric(a.labelDx,0,-220,220),labelDy:numeric(a.labelDy,0,-220,220)};
+    return {color:themeColor(a.color,TYPES[n.type].color),shape:SHAPES[a.shape]?a.shape:"ellipse",size:numeric(a.size,n.id==="harborlight"?58:n.type==="organization"?48:42,28,80),icon:ICONS[a.icon]?a.icon:n.type,labelDx:numeric(a.labelDx,0,-220,220),labelDy:numeric(a.labelDy,0,-220,220)};
   }
   function edgeAppearance(a){
     a=a||{};
-    return {color:color(a.color,"#668998"),width:numeric(a.width,2,1,10),lineStyle:LINE_STYLES[a.lineStyle]?a.lineStyle:"solid",arrow:ARROWS[a.arrow]?a.arrow:"triangle",labelT:numeric(a.labelT,.5,.05,.95)};
+    return {color:themeColor(a.color,"#7897ba"),width:numeric(a.width,2,1,10),lineStyle:LINE_STYLES[a.lineStyle]?a.lineStyle:"solid",arrow:ARROWS[a.arrow]?a.arrow:"triangle",labelT:numeric(a.labelT,.5,.05,.95)};
   }
   let caseData=clone(window.ALATARS_GRAPH_DEMO);
   let enabled=new Set(Object.keys(TYPES));
@@ -74,8 +84,8 @@
     $("save-status").textContent="SAVING DRAFT…";
     clearTimeout(draftTimer);
     draftTimer=setTimeout(()=>{
-      try{localStorage.setItem(DRAFT_KEY,JSON.stringify(toProject()));$("save-status").textContent="BROWSER DRAFT";}
-      catch{$("save-status").textContent="UNSAVED · EXPORT FILE";showToast("Browser storage unavailable; export a project file.");}
+      try{localStorage.setItem(DRAFT_KEY,JSON.stringify(toProject()));$("save-status").textContent=DESKTOP_MODE?"LOCAL DRAFT":"BROWSER DRAFT";}
+      catch{$("save-status").textContent="UNSAVED · EXPORT FILE";showToast("Draft storage unavailable; export a project file.");}
     },800);
   }
   function restoreHistory(stack,other){
@@ -117,28 +127,28 @@
       minZoom:.25,maxZoom:3,wheelSensitivity:.16,boxSelectionEnabled:true,selectionType:"single",
       style:[
         {selector:"node",style:{
-          "background-color":"#17313b","border-width":3,"border-color":ele=>ele.data("appearance").color,
+          "background-color":"#142c50","border-width":3,"border-color":ele=>ele.data("appearance").color,
           "shape":ele=>ele.data("appearance").shape,"width":ele=>ele.data("appearance").size,"height":ele=>ele.data("appearance").size,
           "background-image":ele=>iconUri(ele.data("appearance").icon),"background-fit":"none","background-width":"52%","background-height":"52%","background-repeat":"no-repeat",
-          "label":"data(label)","text-events":"yes","color":"#e0efed","font-size":11,"font-family":"Segoe UI, Arial, sans-serif","font-weight":600,
+          "label":"data(label)","text-events":"yes","color":"#edf5ff","font-size":11,"font-family":"Segoe UI, Arial, sans-serif","font-weight":600,
           "text-wrap":"wrap","text-max-width":120,"text-valign":"center","text-halign":"center",
           "text-margin-x":ele=>ele.data("appearance").labelDx,
           "text-margin-y":ele=>ele.data("appearance").size/2+17+ele.data("appearance").labelDy,
-          "text-outline-width":3,"text-outline-color":"#0a1720","overlay-opacity":0
+          "text-outline-width":3,"text-outline-color":"#08162b","overlay-opacity":0
         }},
         {selector:"edge",style:{
           "width":ele=>ele.data("appearance").width,"line-color":ele=>ele.data("appearance").color,
           "line-style":ele=>ele.data("appearance").lineStyle,"target-arrow-color":ele=>ele.data("appearance").color,
           "target-arrow-shape":ele=>ele.data("appearance").arrow,"arrow-scale":.8,"curve-style":"straight","opacity":.78,
-          "label":"data(label)","text-events":"yes","font-size":9,"font-family":"Segoe UI, Arial, sans-serif","color":"#b8d2d5",
-          "text-rotation":"none","text-background-color":"#0b1b24","text-background-opacity":.94,
+          "label":"data(label)","text-events":"yes","font-size":9,"font-family":"Segoe UI, Arial, sans-serif","color":"#d0e2f5",
+          "text-rotation":"none","text-background-color":"#0d203c","text-background-opacity":.94,
           "text-background-padding":"3px","text-background-shape":"roundrectangle",
           "text-margin-x":ele=>{const a=ele.data("appearance"),s=ele.source().position(),t=ele.target().position();return (a.labelT-.5)*(t.x-s.x);},
           "text-margin-y":ele=>{const a=ele.data("appearance"),s=ele.source().position(),t=ele.target().position();return (a.labelT-.5)*(t.y-s.y);}
         }},
         {selector:".dimmed",style:{"opacity":.14}},
-        {selector:"node.focused",style:{"border-width":5,"border-color":"#f2faf9","overlay-color":"#7af3db","overlay-opacity":.15,"overlay-padding":12}},
-        {selector:"edge.focused",style:{"width":ele=>Math.max(3,ele.data("appearance").width+1),"opacity":1,"color":"#e7f4f1"}},
+        {selector:"node.focused",style:{"border-width":5,"border-color":"#f2f8ff","overlay-color":"#7dbfff","overlay-opacity":.17,"overlay-padding":12}},
+        {selector:"edge.focused",style:{"width":ele=>Math.max(3,ele.data("appearance").width+1),"opacity":1,"color":"#edf6ff"}},
         {selector:".filtered",style:{"display":"none"}}
       ]
     });
@@ -358,7 +368,7 @@
     const body=element("div","inspector-empty");
     body.append(element("div","empty-symbol","◎"),element("h2","","Select an element"),element("p","","Inspect and edit entity attributes, visual styles, and label positions."));
     const hint=element("div","hint-card");
-    hint.append(element("strong","","Working with labels"),document.createTextNode("Select a node or connection, then drag its teal label handle on the canvas or use the controls here."));
+    hint.append(element("strong","","Working with labels"),document.createTextNode("Select a node or connection, then drag its blue label handle on the canvas or use the controls here."));
     body.append(hint);root.append(body);
   }
   function renderMultiInspector(){
@@ -371,7 +381,7 @@
     const names=element("div","multi-list");items.slice(0,30).forEach(item=>names.append(element("div","",item.data("label")||item.id())));
     if(items.length>30)names.append(element("div","",`+ ${items.length-30} more`));list.append(names);
     const style=section(content,"BATCH APPEARANCE");
-    colorField(style,"#59dec8",value=>items.forEach(item=>{const record=item.isNode()?caseData.nodes.find(n=>n.id===item.id()):caseData.edges.find(e=>e.id===item.id());if(record)applyAppearance(record,{color:value});}));
+    colorField(style,"#6bbaff",value=>items.forEach(item=>{const record=item.isNode()?caseData.nodes.find(n=>n.id===item.id()):caseData.edges.find(e=>e.id===item.id());if(record)applyAppearance(record,{color:value});}));
     if(nodes.length)selectField(style,"Entity icon",nodes[0].data("appearance").icon,pairsToObject(Object.entries(ICONS).map(([key,v])=>[key,v.label])),value=>nodes.forEach(item=>{const n=caseData.nodes.find(record=>record.id===item.id());if(n)applyAppearance(n,{icon:value});}));
     const clear=element("button","reset-position","Clear selection");clear.type="button";clear.addEventListener("click",clearSelection);content.append(clear);root.append(content);
   }
@@ -483,7 +493,7 @@
       const grid=element("div","attribute-grid");appearance.append(grid);
       selectField(grid,"Shape",a.shape,SHAPES,value=>applyAppearance(n,{shape:value}));
       rangeField(grid,"node-size","Size",a.size,28,80,1,value=>applyAppearance(n,{size:value}),value=>Math.round(value)+" px");
-      const labels=section(content,"NODE LABEL","Drag the teal handle");
+      const labels=section(content,"NODE LABEL","Drag the blue handle");
       labels.append(element("p","attribute-hint","Move the label freely around its node. Use the handle on the canvas for direct placement."));
       rangeField(labels,"node-label-x","Horizontal offset",a.labelDx,-220,220,1,value=>applyAppearance(n,{labelDx:value}),value=>Math.round(value)+" px");
       rangeField(labels,"node-label-y","Vertical offset",a.labelDy,-220,220,1,value=>applyAppearance(n,{labelDy:value}),value=>Math.round(value)+" px");
@@ -524,7 +534,7 @@
       selectField(grid,"Line style",a.lineStyle,LINE_STYLES,value=>applyAppearance(e,{lineStyle:value}));
       selectField(grid,"Arrowhead",a.arrow,ARROWS,value=>applyAppearance(e,{arrow:value}));
       const labels=section(content,"EDGE LABEL","Slide along connection");
-      labels.append(element("p","attribute-hint","Drag the teal handle on the canvas or slide below. Position follows the edge when nodes move."));
+      labels.append(element("p","attribute-hint","Drag the blue handle on the canvas or slide below. Position follows the edge when nodes move."));
       rangeField(labels,"edge-label","Label along edge",Math.round(a.labelT*100),5,95,1,value=>applyAppearance(e,{labelT:value/100}),value=>Math.round(value)+"%");
       const reset=element("button","reset-position","Center label");reset.type="button";
       reset.addEventListener("click",()=>{checkpoint();applyAppearance(e,{labelT:.5});updateRangeDisplay("edge-label",.5);markDirty();});
@@ -773,7 +783,7 @@
   $("zoom-out").addEventListener("click",()=>cy.zoom({level:Math.max(.25,cy.zoom()/1.25),renderedPosition:{x:cy.width()/2,y:cy.height()/2}}));
   $("png-button").addEventListener("click",()=>{
     try{
-      const a=element("a");a.href=cy.png({output:"base64uri",full:true,bg:"#0a1720",scale:2});
+      const a=element("a");a.href=cy.png({output:"base64uri",full:true,bg:"#08162b",scale:2});
       a.download="alatars-graph-chart.png";document.body.append(a);a.click();a.remove();showToast("Chart PNG exported");
     }catch{showToast("PNG export is unavailable in this browser");}
   });
@@ -844,7 +854,7 @@
     syncSidePanels();
   });
   setupPanelResize();
-  try{const draft=localStorage.getItem(DRAFT_KEY);if(draft){caseData=validateCase(JSON.parse(draft));imported=true;$("save-status").textContent="BROWSER DRAFT";}}catch{localStorage.removeItem(DRAFT_KEY);}
+  try{const draft=localStorage.getItem(DRAFT_KEY);if(draft){caseData=validateCase(JSON.parse(draft));imported=true;$("save-status").textContent=DESKTOP_MODE?"LOCAL DRAFT":"BROWSER DRAFT";}}catch{localStorage.removeItem(DRAFT_KEY);}
   initGraph();
   window.ALATARS_GRAPH_API={
     project:()=>toProject(),
